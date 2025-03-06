@@ -105,28 +105,6 @@ The executables are automatically built by GitHub Actions for each release:
 - `shiny-manager-x64-linux` - For x64 Linux
 - `shiny-manager-arm64-linux` - For ARM64 Linux
 
-### Docker Usage Example
-
-```dockerfile
-FROM alpine:latest
-
-# Set ARG for architecture
-ARG TARGETARCH=amd64
-
-# Install required dependencies
-RUN apk add --no-cache wget ca-certificates libstdc++ libgcc
-
-# Set the executable name based on architecture
-RUN if [ "$TARGETARCH" = "arm64" ]; then \
-      EXEC_NAME="shiny-manager-arm64-linux"; \
-    else \
-      EXEC_NAME="shiny-manager-x64-linux"; \
-    fi && \
-    wget -O /usr/local/bin/shiny-manager "https://github.com/fxi/shiny-manager/releases/latest/download/$EXEC_NAME" && \
-    chmod +x /usr/local/bin/shiny-manager
-
-# Rest of your Dockerfile...
-```
 
 ### Building the Project
 
