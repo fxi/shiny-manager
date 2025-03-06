@@ -114,7 +114,7 @@ FROM alpine:latest
 ARG TARGETARCH=amd64
 
 # Install required dependencies
-RUN apk add --no-cache wget ca-certificates
+RUN apk add --no-cache wget ca-certificates libstdc++ libgcc
 
 # Set the executable name based on architecture
 RUN if [ "$TARGETARCH" = "arm64" ]; then \
