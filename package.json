@@ -1,18 +1,20 @@
 {
   "name": "@fxi/shiny-manager",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A package for managing R Shiny application processes with a programmable proxy",
-  "main": "index.js",
+  "main": "dist/index.js",
   "bin": {
-    "shiny-manager": "./bin/shiny-manager.js"
+    "shiny-manager": "./dist/bin/shiny-manager.js"
   },
   "type": "module",
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
+    "prepare": "npm run build",
     "prepublishOnly": "npm test",
-    "release": "npm publish --access public"
+    "release": "npm publish --access public",
+    "build": "node build/bundle.js"
   },
   "keywords": [
     "shiny",
@@ -31,6 +33,7 @@
     "uuid": "^11.1.0"
   },
   "devDependencies": {
+    "esbuild": "^0.20.1",
     "vitest": "^3.0.7"
   },
   "repository": {
@@ -41,11 +44,11 @@
     "node": ">=18.0.0"
   },
   "files": [
-    "index.js",
-    "proxy.js",
-    "session.js",
-    "utils.js",
-    "bin/",
-    "public/"
+    "dist/index.js",
+    "dist/proxy.js",
+    "dist/session.js",
+    "dist/utils.js",
+    "dist/bin/",
+    "dist/public/"
   ]
 }

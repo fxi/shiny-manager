@@ -97,6 +97,54 @@ npm test
 - Node.js >= 18.0.0
 - R with Shiny installed
 
+## Single Executable Applications
+
+Starting with version 1.0.1, you can download pre-built standalone executables from GitHub releases that don't require Node.js to be installed.
+
+The executables are automatically built by GitHub Actions for each release:
+- `shiny-manager-x64-linux` - For x64 Linux
+- `shiny-manager-arm64-linux` - For ARM64 Linux
+
+### Docker Usage Example
+
+```dockerfile
+FROM alpine:latest
+
+# Set ARG for architecture
+ARG TARGETARCH=amd64
+
+# Install required dependencies
+RUN apk add --no-cache wget ca-certificates
+
+# Set the executable name based on architecture
+RUN if [ "$TARGETARCH" = "arm64" ]; then \
+      EXEC_NAME="shiny-manager-arm64-linux"; \
+    else \
+      EXEC_NAME="shiny-manager-x64-linux"; \
+    fi && \
+    wget -O /usr/local/bin/shiny-manager "https://github.com/fxi/shiny-manager/releases/latest/download/$EXEC_NAME" && \
+    chmod +x /usr/local/bin/shiny-manager
+
+# Rest of your Dockerfile...
+```
+
+### Building the Project
+
+To build the bundled JavaScript files:
+
+```bash
+npm run build
+```
+
+This will create optimized bundled files in the `dist/` directory. The build script:
+1. Uses esbuild to bundle the JavaScript files
+2. Copies the public directory
+3. Makes the CLI executable
+
+To build Single Executable Applications locally (requires Node.js 21+):
+1. Run `npm run build` to create the bundled files
+2. Use Node.js Single Executable Applications API with the provided `sea-config.json`
+
 ## License
 
 MIT

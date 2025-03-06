@@ -1,0 +1,13 @@
+{
+  "main": "bin/shiny-manager.js",
+  "output": "sea-blob.blob",
+  "assets": [
+    "index.js",
+    "proxy.js",
+    "session.js",
+    "utils.js",
+    "bin/shiny-manager.js",
+    "package.json",
+    "public/**/*"
+  ]
+}

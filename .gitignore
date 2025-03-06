@@ -91,6 +91,11 @@ out
 .nuxt
 dist
 
+# Node.js Single Executable Application files
+sea-blob.blob
+*.blob
+dist/shiny-manager-*
+
 # Gatsby files
 .cache/
 # Comment in the public line in if your project uses Gatsby and not Next.js

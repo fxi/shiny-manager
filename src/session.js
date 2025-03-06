@@ -34,9 +34,6 @@ export class Session {
   get proxy() {
     return this._proxy;
   }
-  get url() {
-    return this._url;
-  }
   get path() {
     return this._path;
   }
