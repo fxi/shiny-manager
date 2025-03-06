@@ -97,14 +97,6 @@ npm test
 - Node.js >= 18.0.0
 - R with Shiny installed
 
-## Single Executable Applications
-
-Starting with version 1.0.1, you can download pre-built standalone executables from GitHub releases that don't require Node.js to be installed.
-
-The executables are automatically built by GitHub Actions for each release:
-- `shiny-manager-x64-linux` - For x64 Linux
-- `shiny-manager-arm64-linux` - For ARM64 Linux
-
 
 ### Building the Project
 
