@@ -9,8 +9,21 @@ coverage/
 .vscode/
 .idea/
 *.log
+*.lock
 node_modules/
+client/
+src/
+build/
 demo/
+
+# Build configuration
+.babelrc
+.eslintrc
+.prettierrc
+.travis.yml
+Dockerfile
+rollup.config.js
+vite.config.js
 
 # OS specific files
 .DS_Store
