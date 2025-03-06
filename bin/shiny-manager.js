@@ -15,7 +15,7 @@ const args = process.argv.slice(2);
 // Help text
 if (args.includes("-h") || args.includes("--help")) {
   console.log(`
-Usage: shiny-manage [options] <path-to-app.R> [port]
+Usage: shiny-manager [options] <path-to-app.R> [port]
 
 Options:
   -h, --help     Show this help message
@@ -26,8 +26,8 @@ Arguments:
   port           Port to run the server on (default: 8080)
 
 Examples:
-  shiny-manage ./app.R
-  shiny-manage ./app.R 3000
+  shiny-manager ./app.R
+  shiny-manager ./app.R 3000
   `);
   process.exit(0);
 }
@@ -40,14 +40,14 @@ if (args.includes("-v") || args.includes("--version")) {
       "utf8"
     )
   );
-  console.log(`shiny-manage v${packageJson.version}`);
+  console.log(`shiny-manager v${packageJson.version}`);
   process.exit(0);
 }
 
 // Check for required arguments
 if (args.length < 1) {
   console.error("Error: Missing required argument <path-to-app.R>");
-  console.error("Run 'shiny-manage --help' for usage information");
+  console.error("Run 'shiny-manager --help' for usage information");
   process.exit(1);
 }
 

@@ -33,13 +33,13 @@ The simplest way to use the package is via the command line:
 
 ```bash
 # Start a Shiny app on the default port (8080)
-shiny-manage ./path/to/app.R
+shiny-manager ./path/to/app.R
 
 # Start a Shiny app on a specific port
-shiny-manage ./path/to/app.R 3000
+shiny-manager ./path/to/app.R 3000
 
 # Show help
-shiny-manage --help
+shiny-manager --help
 ```
 
 This will start a server that will:
