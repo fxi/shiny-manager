@@ -98,18 +98,51 @@ npm test
 - R with Shiny installed
 
 
+### Project Structure
+
+The project is organized as follows:
+
+- `src/`: Server-side Node.js code
+  - `bin/`: Command-line interface
+  - Other server modules
+- `client/`: Client-side code (browser interface)
+  - Uses Vite for bundling
+  - Includes Socket.IO client
+- `build/`: Build scripts
+  - `build.js`: Main build script
+- `dist/`: (Generated) Distribution files
+  - `bin/`: CLI executable
+  - `public/`: Client-side assets 
+
 ### Building the Project
 
-To build the bundled JavaScript files:
+To build the project:
 
 ```bash
 npm run build
 ```
 
-This will create optimized bundled files in the `dist/` directory. The build script:
-1. Uses esbuild to bundle the JavaScript files
-2. Copies the public directory
-3. Makes the CLI executable
+This will:
+1. Build the client-side code using Vite (bundles Socket.IO client)
+2. Copy server-side modules to the dist folder
+3. Make the CLI executable
+4. Create a ready-to-publish package in the `dist/` directory
+
+### Development
+
+To run the client in development mode with hot-reloading:
+
+```bash
+npm run dev
+```
+
+To run the demo Shiny app for testing (after building):
+
+```bash
+npm run test:r
+```
+
+This will launch the demo app on port 8080. You can then open http://localhost:8080 in your browser.
 
 To build Single Executable Applications locally (requires Node.js 21+):
 1. Run `npm run build` to create the bundled files

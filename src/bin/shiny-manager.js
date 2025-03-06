@@ -8,6 +8,7 @@ import express from "express";
 import path from "path";
 import { Session } from "../session.js";
 import { ProgrammableProxy } from "../proxy.js";
+import packageJson from "../../package.json" assert { type: 'json' };
 
 // Get the command-line arguments
 const args = process.argv.slice(2);
@@ -34,12 +35,6 @@ Examples:
 
 // Version info
 if (args.includes("-v") || args.includes("--version")) {
-  const packageJson = JSON.parse(
-    await readFile(
-      new URL("../package.json", import.meta.url),
-      "utf8"
-    )
-  );
   console.log(`shiny-manager v${packageJson.version}`);
   process.exit(0);
 }
