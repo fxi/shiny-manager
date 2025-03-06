@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { wait } from '../utils.js';
+import { wait } from '../src/utils.js';
 import * as net from 'net';
 
 // NOTE: We're not testing getPort() thoroughly because it would require

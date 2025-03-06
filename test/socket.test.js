@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { Session } from '../session.js';
-import { ProgrammableProxy } from '../proxy.js';
+import { Session } from '../src/session.js';
+import { ProgrammableProxy } from '../src/proxy.js';
 
 describe('Socket.IO Integration', () => {
   let mockSocket;

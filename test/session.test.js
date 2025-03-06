@@ -1,11 +1,17 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { Session, sessions } from '../session.js';
-import { ProgrammableProxy } from '../proxy.js';
+import { Session, sessions } from '../src/session.js';
+import { ProgrammableProxy } from '../src/proxy.js';
 import { randomUUID } from 'crypto';
-import * as utils from '../utils.js';
+import * as utils from '../src/utils.js';
 
 vi.mock('crypto', () => ({
   randomUUID: vi.fn().mockReturnValue('test-uuid')
+}));
+
+// Mock utils
+vi.mock('../src/utils.js', () => ({
+  getPort: vi.fn().mockResolvedValue(8000),
+  wait: vi.fn().mockImplementation((ms) => new Promise(resolve => setTimeout(() => resolve('timeout'), ms)))
 }));
 
 vi.mock('child_process', () => ({

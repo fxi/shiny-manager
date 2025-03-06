@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { ProgrammableProxy } from '../proxy.js';
+import { ProgrammableProxy } from '../src/proxy.js';
 
 describe('ProgrammableProxy', () => {
   let proxy;
