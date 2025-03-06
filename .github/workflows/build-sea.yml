@@ -69,17 +69,17 @@ jobs:
         id: sea
         uses: bryopsida/node-sea-action@v1
         with:
-          working-dir: dist
+          working-dir: .
           output-dir: build
           executable-name: ${{ matrix.output-name }}
-          sea-config-path: ../sea-config.json
+          sea-config-path: sea-config.json
           node-path: ${{ steps.find-node.outputs.node }}
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.output-name }}
-          path: dist/build/${{ matrix.output-name }}
+          path: build/${{ matrix.output-name }}
           if-no-files-found: error
 
       - name: Upload to release
@@ -89,6 +89,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ github.event.release.upload_url }}
-          asset_path: dist/build/${{ matrix.output-name }}
+          asset_path: build/${{ matrix.output-name }}
           asset_name: ${{ matrix.output-name }}
           asset_content_type: application/octet-stream
