@@ -88,8 +88,28 @@ session.destroy();
 
 ## Testing
 
+Run the unit tests:
+
 ```bash
 npm test
+```
+
+Run with test coverage:
+
+```bash
+npm run test:coverage
+```
+
+Test the Shiny demo app:
+
+```bash
+npm run test:r
+```
+
+Test in Docker container:
+
+```bash
+npm run test:docker
 ```
 
 ## Requirements

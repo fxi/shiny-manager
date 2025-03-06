@@ -12,6 +12,7 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:r": "node dist/bin/shiny-manager.js demo/app.R 8080",
+    "test:docker": "./docker.test.sh",
     "prepare": "npm run build",
     "prepublishOnly": "npm test",
     "release": "npm publish --access public",
