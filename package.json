@@ -1,0 +1,51 @@
+{
+  "name": "@fxi/shiny-manager",
+  "version": "1.0.0",
+  "description": "A package for managing R Shiny application processes with a programmable proxy",
+  "main": "index.js",
+  "bin": {
+    "shiny-manage": "./bin/shiny-manage.js"
+  },
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "prepublishOnly": "npm test",
+    "release": "npm publish --access public"
+  },
+  "keywords": [
+    "shiny",
+    "r",
+    "proxy",
+    "process-manager",
+    "web-socket",
+    "reverse-proxy"
+  ],
+  "author": "fxi",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.21.2",
+    "http-proxy": "^1.18.1",
+    "socket.io": "^4.8.1",
+    "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "vitest": "^3.0.7"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fxi/shiny-manager.git"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "files": [
+    "index.js",
+    "proxy.js",
+    "session.js",
+    "utils.js",
+    "bin/",
+    "public/"
+  ]
+}

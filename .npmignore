@@ -1,0 +1,17 @@
+# Tests
+test/
+*.test.js
+coverage/
+
+# Development files
+.git/
+.github/
+.vscode/
+.idea/
+*.log
+node_modules/
+demo/
+
+# OS specific files
+.DS_Store
+Thumbs.db
