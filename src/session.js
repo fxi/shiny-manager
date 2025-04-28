@@ -164,19 +164,22 @@ export class Session {
   }
   async _health_check(fail_if_timeout = true) {
     try {
-      const promFetch = fetch(`${this._url}/x/health`);
+      // Simply fetch the root URL instead of a special health endpoint
+      const promFetch = fetch(this._url);
       const promTimeout = wait(3000);
       const response = await Promise.race([promFetch, promTimeout]);
-      const is_timeout = response === "timeout";
-      if (is_timeout && fail_if_timeout) {
-        throw new Error("timeout");
-      }
-      if (is_timeout && !fail_if_timeout) {
-        console.warn("Health check : R probably busy");
+      
+      // Handle timeout case
+      if (response === "timeout") {
+        if (fail_if_timeout) {
+          throw new Error("timeout");
+        }
+        console.warn("Health check: R probably busy");
         return true;
       }
-      const text = await response.text();
-      return /^ok/.test(text);
+      
+      // If we get a response, check if it's a 200 status
+      return response.status === 200;
     } catch (error) {
       return false;
     }
