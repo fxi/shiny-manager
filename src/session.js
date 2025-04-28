@@ -118,6 +118,7 @@ export class Session {
     });
 
     const ok = await this.healthy();
+    
     if (!ok) {
       console.error(
         `Process cannot start on port ${this.port} for entry point ${this.entrypoint}`
@@ -150,10 +151,12 @@ export class Session {
     let ok = false;
     const max = 20;
     for (let i = 0; i < max; i++) {
-      console.log(`Attempt ${i}/${max}`);
+      this.socket.emit('health_check', i + 1, max); // Emit health check progress
+      console.log(`Attempt ${i + 1}/${max}`); // Log attempt number starting from 1
       await wait(1000);
       ok = await this._health_check();
       if (ok) {
+        this.socket.emit('app_ready'); // Emit app ready signal
         break;
       }
     }

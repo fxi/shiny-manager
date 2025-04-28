@@ -1,56 +1,79 @@
 # @fxi/shiny-manager
 
-A Node.js package for managing R Shiny application processes with a programmable reverse proxy.
+A Node.js package for managing R Shiny application processes with a programmable reverse proxy. It provides a web interface to view and interact with Shiny apps, with features like health monitoring and process management.
+
+## Quick Start for Development
+
+1. **Clone and install dependencies**
+   ```bash
+   git clone https://github.com/fxi/shiny-manager.git
+   cd shiny-manager
+   npm install
+   ```
+
+2. **Build the project**
+   ```bash
+   npm run build
+   ```
+   This builds the client-side code and prepares the server-side modules.
+
+3. **Run the demo app**
+   ```bash
+   npm run test:r
+   ```
+   This launches the demo Shiny app on http://localhost:8080.
+
+## Development Workflow
+
+The project has two main components that need to be built and run together:
+
+1. **Client-side code** (in `/client/`): Browser interface with Socket.IO
+2. **Server-side code** (in `/src/`): Node.js server that manages R processes
+
+### Development Process
+
+1. **Make changes to client code** (in `/client/`)
+2. **Build the project** to update the distribution files:
+   ```bash
+   npm run build
+   ```
+3. **Test your changes** with the demo app:
+   ```bash
+   npm run test:r
+   ```
+
+> **Important:** Always run `npm run build` after making changes to client code. The build process copies the client build to the `dist/public` directory, which is served by the Node.js server.
 
 ## Features
 
-- Launch and manage R Shiny processes from the command line
-- Dynamic proxy routing
-- WebSocket support
-- Process lifecycle management
-- Health monitoring
-- Socket.IO integration
-
-## Installation
-
-### Global Installation (Recommended)
-
-```bash
-npm install -g @fxi/shiny-manager
-```
-
-### Local Installation
-
-```bash
-npm install @fxi/shiny-manager
-```
+- Launch and manage R Shiny processes
+- Dynamic proxy routing with WebSocket support
+- Process lifecycle management and health monitoring
+- Status overlay for connection, health checks, and disconnection states
+- Socket.IO integration for real-time communication
 
 ## Usage
 
 ### Command Line
 
-The simplest way to use the package is via the command line:
-
 ```bash
-# Start a Shiny app on the default port (8080)
+# Install globally
+npm install -g @fxi/shiny-manager
+
+# Start a Shiny app (default port 8080)
 shiny-manager ./path/to/app.R
 
-# Start a Shiny app on a specific port
+# Start on a specific port
 shiny-manager ./path/to/app.R 3000
+
+# Set a custom title
+shiny-manager --title "My Shiny App" ./path/to/app.R
 
 # Show help
 shiny-manager --help
 ```
 
-This will start a server that will:
-1. Launch your R Shiny application
-2. Provide a web interface to view and interact with it
-3. Monitor the health of the application
-4. Allow for restarting the application if needed
-
 ### Programmatic Usage
-
-You can also use the package programmatically:
 
 ```javascript
 import { ProgrammableProxy } from '@fxi/shiny-manager/proxy.js';
@@ -67,106 +90,19 @@ await session.init();
 session.destroy();
 ```
 
-## API Reference
+## Project Structure
 
-### ProgrammableProxy
-
-- `register(sourcePath, targetUrl)`: Register a new proxy route
-- `unregister(pathPattern)`: Unregister a proxy route
-- `middleware()`: Express middleware for handling HTTP requests
-- `getRoutes()`: Get all registered routes
-- `handleUpgrade(req, socket, head)`: Handle WebSocket upgrade requests
-
-### Session
-
-- `init()`: Initialize the session and start the R process
-- `destroy()`: Destroy the session and clean up resources
-- `stop()`: Stop the R process
-- `register()`: Register the session with the proxy
-- `unregister()`: Unregister the session from the proxy
-- `healthy()`: Check if the R process is healthy
-
-## Testing
-
-Run the unit tests:
-
-```bash
-npm test
-```
-
-Run with test coverage:
-
-```bash
-npm run test:coverage
-```
-
-Test the Shiny demo app:
-
-```bash
-npm run test:r
-```
-
-Test in Docker container:
-
-```bash
-npm run test:docker
-```
+- `src/`: Server-side Node.js code
+- `client/`: Client-side code (browser interface)
+- `build/`: Build scripts
+- `dist/`: (Generated) Distribution files
+- `demo/`: Demo Shiny app for testing
+- `test/`: Test files
 
 ## Requirements
 
 - Node.js >= 18.0.0
 - R with Shiny installed
-
-
-### Project Structure
-
-The project is organized as follows:
-
-- `src/`: Server-side Node.js code
-  - `bin/`: Command-line interface
-  - Other server modules
-- `client/`: Client-side code (browser interface)
-  - Uses Vite for bundling
-  - Includes Socket.IO client
-- `build/`: Build scripts
-  - `build.js`: Main build script
-- `dist/`: (Generated) Distribution files
-  - `bin/`: CLI executable
-  - `public/`: Client-side assets 
-
-### Building the Project
-
-To build the project:
-
-```bash
-npm run build
-```
-
-This will:
-1. Build the client-side code using Vite (bundles Socket.IO client)
-2. Copy server-side modules to the dist folder
-3. Make the CLI executable
-4. Create a ready-to-publish package in the `dist/` directory
-
-### Development
-
-To run the client in development mode with hot-reloading:
-
-```bash
-npm run dev
-```
-
-To run the demo Shiny app for testing (after building):
-
-```bash
-npm run test:r
-```
-
-This will launch the demo app on port 8080. You can then open http://localhost:8080 in your browser.
-
-To build Single Executable Applications locally (requires Node.js 21+):
-1. Run `npm run build` to create the bundled files
-2. Use Node.js Single Executable Applications API with the provided `sea-config.json`
 
 ## License
 
