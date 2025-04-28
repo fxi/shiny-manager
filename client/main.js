@@ -23,12 +23,12 @@ window.addEventListener("message", async (event) => {
 
 socket.on("connect", () => {
   console.log("connect");
-  showOverlay('Connecting to application...');
+  showOverlay('🔄 Connecting...');
 });
 
 socket.on("disconnect", () => {
   console.log("disconnect");
-  showOverlay('Disconnected. Attempting to reconnect...');
+  showOverlay('📡 Reconnecting...');
 });
 
 socket.on("init", (url) => {
@@ -37,9 +37,9 @@ socket.on("init", (url) => {
   elIframe.src = url;
 });
 
-// Add new events for health check status
+// Add new events for server test status (previously health check)
 socket.on('health_check', (attempt, max) => {
-  showOverlay(`Health check in progress (${attempt}/${max})...`);
+  showOverlay(`⚡ Testing server (${attempt}/${max})...`);
 });
 
 socket.on('app_ready', () => {
@@ -55,7 +55,6 @@ elIframe.addEventListener('load', () => {
     // Add a small delay to ensure the app is truly ready
     setTimeout(() => {
       hideOverlay();
-      console.log('Overlay hidden by iframe load (backup)');
     }, 500);
   }
 });
