@@ -1,6 +1,6 @@
 {
   "name": "@fxi/shiny-manager",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "A package for managing R Shiny application processes with a programmable proxy",
   "main": "dist/index.js",
   "bin": {
