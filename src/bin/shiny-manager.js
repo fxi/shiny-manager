@@ -19,16 +19,19 @@ if (args.includes("-h") || args.includes("--help")) {
 Usage: shiny-manager [options] <path-to-app.R> [port]
 
 Options:
-  -h, --help     Show this help message
-  -v, --version  Show version number
+  -h, --help               Show this help message
+  -v, --version            Show version number
+  -t, --title <title>      Set the document title (default: "Shiny App Manager")
 
 Arguments:
-  path-to-app.R  Path to the R Shiny app entry point (required)
-  port           Port to run the server on (default: 8080)
+  path-to-app.R            Path to the R Shiny app entry point (required)
+  port                     Port to run the server on (default: 8080)
 
 Examples:
   shiny-manager ./app.R
   shiny-manager ./app.R 3000
+  shiny-manager --title "My Shiny App" ./app.R
+  shiny-manager -t "My Shiny App" ./app.R 3000
   `);
   process.exit(0);
 }
@@ -37,6 +40,15 @@ Examples:
 if (args.includes("-v") || args.includes("--version")) {
   console.log(`shiny-manager v${packageJson.version}`);
   process.exit(0);
+}
+
+// Get title option
+let titleIndex = args.findIndex(arg => arg === "--title" || arg === "-t");
+let title = "Shiny App Manager"; // Default title
+if (titleIndex !== -1 && args.length > titleIndex + 1) {
+  title = args[titleIndex + 1];
+  // Remove the title and its value from args for further processing
+  args.splice(titleIndex, 2);
 }
 
 // Check for required arguments
@@ -83,6 +95,9 @@ io.on("connection", async (socket) => {
   try {
     let session = new Session(socket, proxy, appPath);
     await session.init();
+    
+    // Send the title to the client
+    socket.emit("set_title", title);
 
     socket.on("message", async (value) => {
       if (value === "restart") {

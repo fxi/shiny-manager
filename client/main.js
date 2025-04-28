@@ -20,3 +20,7 @@ socket.on("init", (url) => {
   console.log("INIT", url);
   elIframe.src = url;
 });
+
+socket.on("set_title", (title) => {
+  document.title = title;
+});

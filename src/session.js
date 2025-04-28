@@ -148,7 +148,7 @@ export class Session {
 
   async healthy() {
     let ok = false;
-    const max = 10;
+    const max = 20;
     for (let i = 0; i < max; i++) {
       console.log(`Attempt ${i}/${max}`);
       await wait(1000);
