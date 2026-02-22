@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
     <title>Shiny App Manager</title>
@@ -31,17 +31,113 @@
         opacity: 0;
         pointer-events: none;
       }
+      #overlay-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+      }
       #com {
-        padding: 20px;
         text-align: center;
-        font-family: system-ui, -apple-system, sans-serif;
+        font-size: 13px;
+        font-family:
+          system-ui,
+          -apple-system,
+          sans-serif;
+        color: #444;
+      }
+
+      /* ── Progress bar ───────────────────────────────────────────────── */
+      #progress-track {
+        width: 160px;
+        height: 2px;
+        background: rgba(0, 0, 0, 0.1);
+        border-radius: 1px;
+        overflow: hidden;
+      }
+      #progress-track.hidden {
+        visibility: hidden;
+      }
+      #progress-fill {
+        height: 100%;
+        width: 0%;
+        background: #222;
+        border-radius: 1px;
+        transition: width 0.9s ease;
+      }
+
+      /* ── Retry button (failure state) ───────────────────────────────── */
+      #btn-retry {
+        display: none;
+        padding: 5px 14px;
+        font-size: 12px;
+        font-family:
+          system-ui,
+          -apple-system,
+          sans-serif;
+        background: #222;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      #btn-retry.visible {
+        display: block;
+      }
+
+      /* ── Process control buttons ───────────────────────────────────── */
+      #controls {
+        position: fixed;
+        bottom: 10px;
+        z-index: 900;
+        left: 5px;
+        display: flex;
+        gap: 6px;
+      }
+      #controls.hidden {
+        display: none;
+      }
+      #controls button {
+        padding: 4px 10px;
+        font-size: 12px;
+        font-family:
+          system-ui,
+          -apple-system,
+          sans-serif;
+        background: rgba(255, 255, 255, 0.85);
+        border: 1px solid rgba(0, 0, 0, 0.18);
+        border-radius: 4px;
+        cursor: pointer;
+        color: #333;
+        backdrop-filter: blur(4px);
+        transition: background 0.15s;
+      }
+      #controls button:hover {
+        background: rgba(240, 240, 240, 0.95);
+      }
+      #btn-stop:hover {
+        background: rgba(255, 220, 220, 0.95);
+        border-color: rgba(200, 0, 0, 0.25);
+        color: #a00;
       }
     </style>
   </head>
   <body>
     <div id="com_container" class="overlay">
-      <span id="com">Starting...</span>
+      <div id="overlay-content">
+        <span id="com">Starting…</span>
+        <div id="progress-track" class="hidden">
+          <div id="progress-fill"></div>
+        </div>
+        <button id="btn-retry">Try again</button>
+      </div>
     </div>
+
+    <div id="controls" class="hidden">
+      <button id="btn-restart">↺ Restart</button>
+      <button id="btn-stop">■ Stop</button>
+    </div>
+
     <iframe id="shinyFrame" src="about:blank"></iframe>
   </body>
   <script type="module" src="/main.js"></script>

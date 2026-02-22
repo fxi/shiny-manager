@@ -6,9 +6,11 @@ import { readFile } from "fs/promises";
 import { fileURLToPath } from "url";
 import express from "express";
 import path from "path";
+import { randomUUID } from "crypto";
 import { Session } from "../session.js";
+import { SessionPool } from "../pool.js";
 import { ProgrammableProxy } from "../proxy.js";
-import packageJson from "../../package.json" assert { type: 'json' };
+import packageJson from "../../package.json" with { type: "json" };
 
 // Get the command-line arguments
 const args = process.argv.slice(2);
@@ -22,6 +24,7 @@ Options:
   -h, --help               Show this help message
   -v, --version            Show version number
   -t, --title <title>      Set the document title (default: "Shiny App Manager")
+  -n, --pool <n>           Number of pre-warmed idle sessions (default: 2)
 
 Arguments:
   path-to-app.R            Path to the R Shiny app entry point (required)
@@ -31,7 +34,7 @@ Examples:
   shiny-manager ./app.R
   shiny-manager ./app.R 3000
   shiny-manager --title "My Shiny App" ./app.R
-  shiny-manager -t "My Shiny App" ./app.R 3000
+  shiny-manager -t "My Shiny App" -n 3 ./app.R 3000
   `);
   process.exit(0);
 }
@@ -43,12 +46,19 @@ if (args.includes("-v") || args.includes("--version")) {
 }
 
 // Get title option
-let titleIndex = args.findIndex(arg => arg === "--title" || arg === "-t");
-let title = "Shiny App Manager"; // Default title
+let titleIndex = args.findIndex((arg) => arg === "--title" || arg === "-t");
+let title = "Shiny App Manager";
 if (titleIndex !== -1 && args.length > titleIndex + 1) {
   title = args[titleIndex + 1];
-  // Remove the title and its value from args for further processing
   args.splice(titleIndex, 2);
+}
+
+// Get pool size option
+let poolIndex = args.findIndex((arg) => arg === "--pool" || arg === "-n");
+let poolSize = 2;
+if (poolIndex !== -1 && args.length > poolIndex + 1) {
+  poolSize = parseInt(args[poolIndex + 1], 10) || 2;
+  args.splice(poolIndex, 2);
 }
 
 // Check for required arguments
@@ -90,25 +100,47 @@ app.get("/", async (req, res) => {
   }
 });
 
+// Create and warm the session pool
+const pool = new SessionPool(proxy, appPath, poolSize);
+pool.warm();
+console.log(`🔥 Pre-warming ${poolSize} session(s) in background…`);
+
 // Socket.IO connection handling
 io.on("connection", async (socket) => {
+  // Identify user by token sent in socket handshake (set in localStorage client-side)
+  const token = socket.handshake.auth?.token || randomUUID();
+
   try {
-    let session = new Session(socket, proxy, appPath);
-    await session.init();
-    
-    // Send the title to the client
-    socket.emit("set_title", title);
+    const existing = pool.claim(token);
+
+    if (existing) {
+      // Fast path: hand back a pre-warmed (or previously active) session
+      pool.attach(token, socket, title);
+    } else {
+      // Cold-start fallback: pool was empty, spin up a new session on-demand
+      console.warn(
+        `[server] pool empty for token ${token.slice(0, 8)}… — cold starting`
+      );
+      const session = pool.replace(token, socket);
+      await session.init();
+      socket.emit("set_title", title);
+    }
 
     socket.on("message", async (value) => {
       if (value === "restart") {
-        session.destroy();
-        session = new Session(socket, proxy, appPath);
+        // Replace the session for this token and re-init
+        const session = pool.replace(token, socket);
         await session.init();
+        socket.emit("set_title", title);
+      } else if (value === "stop") {
+        // Immediately evict and destroy — next connection gets a fresh session
+        pool.evict(token);
       }
     });
 
-    socket.on("disconnect", async () => {
-      session.destroy();
+    socket.on("disconnect", () => {
+      // Release (not destroy): session stays alive until TTL expires
+      pool.release(token);
     });
   } catch (error) {
     console.error(`Error handling socket connection:`, error);
@@ -117,7 +149,7 @@ io.on("connection", async (socket) => {
 });
 
 // Handle WebSocket upgrades
-server.on('upgrade', (req, socket, head) => {
+server.on("upgrade", (req, socket, head) => {
   proxy.handleUpgrade(req, socket, head);
 });
 
@@ -129,18 +161,18 @@ server.listen(port, () => {
 });
 
 // Clean up on exit
-process.on('SIGINT', () => {
-  console.log('\nShutting down server...');
+process.on("SIGINT", () => {
+  console.log("\nShutting down server...");
   server.close(() => {
-    console.log('Server stopped');
+    console.log("Server stopped");
     process.exit(0);
   });
 });
 
-process.on('SIGTERM', () => {
-  console.log('\nShutting down server...');
+process.on("SIGTERM", () => {
+  console.log("\nShutting down server...");
   server.close(() => {
-    console.log('Server stopped');
+    console.log("Server stopped");
     process.exit(0);
   });
 });

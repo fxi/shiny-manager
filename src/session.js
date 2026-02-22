@@ -5,6 +5,11 @@ import { getPort, wait } from "./utils.js";
 export const sessions = new Map();
 
 export class Session {
+  /**
+   * @param {import('socket.io').Socket|null} socket  may be null for headless pre-warming
+   * @param {import('./proxy.js').ProgrammableProxy} proxy
+   * @param {string} entrypoint  absolute path to app.R
+   */
   constructor(socket, proxy, entrypoint) {
     this._socket = socket;
     this._proxy = proxy;
@@ -38,6 +43,12 @@ export class Session {
     return this._path;
   }
 
+  /**
+   * Full init: spawn process, health-check, register route, then tell the
+   * connected socket where to point the iframe.
+   * Use this for cold-start (on-demand) sessions when no pre-warmed session
+   * is available.
+   */
   async init() {
     this._port = await getPort();
     this._url = `http://0.0.0.0:${this.port}`;
@@ -46,9 +57,42 @@ export class Session {
     if (ok) {
       this.register();
       this.init_routine();
-      this.socket.emit("init", this.path);
+      if (this._socket) {
+        this._socket.emit("init", this.path);
+      }
     }
     return ok;
+  }
+
+  /**
+   * Headless init: same as init() but never emits to any socket.
+   * Used for pre-warming sessions in the pool before a user connects.
+   */
+  async initHeadless() {
+    this._port = await getPort();
+    this._url = `http://0.0.0.0:${this.port}`;
+    this._path = `/app/${this.id}/`;
+    const ok = await this.run();
+    if (ok) {
+      this.register();
+      this.init_routine();
+    }
+    return ok;
+  }
+
+  /**
+   * Attach a live socket to this (pre-warmed) session and immediately signal
+   * readiness to the client.
+   * @param {import('socket.io').Socket} socket
+   * @param {string} [title]
+   */
+  attach(socket, title) {
+    this._socket = socket;
+    socket.emit("init", this.path);
+    socket.emit("app_ready");
+    if (title) {
+      socket.emit("set_title", title);
+    }
   }
 
   destroy() {
@@ -87,14 +131,11 @@ export class Session {
   }
 
   async run() {
-    // Spawn the R process with options to better handle child processes
     this._process = spawn("Rscript", [this.entrypoint, this.port], {
       cwd: path.dirname(this.entrypoint),
-      // Set detached to false to ensure child processes are in the same process group
       detached: false,
     });
 
-    // Log process ID for debugging
     console.log(
       `Started R process with PID ${this._process.pid} for session ${this.id}`
     );
@@ -107,18 +148,18 @@ export class Session {
       console.log(`Shiny stderr [${this.id}]: ${data}`);
     });
 
-    this._process.on("close", (code) => {
+    this._process.on("close", () => {
       this.stop();
     });
 
-    this._process.on("exit", (code) => {});
+    this._process.on("exit", () => {});
 
     this._process.on("error", (error) => {
       console.error(`Error in process for session ${this.id}:`, error);
     });
 
     const ok = await this.healthy();
-    
+
     if (!ok) {
       console.error(
         `Process cannot start on port ${this.port} for entry point ${this.entrypoint}`
@@ -151,25 +192,31 @@ export class Session {
     let ok = false;
     const max = 20;
     for (let i = 0; i < max; i++) {
-      this.socket.emit('health_check', i + 1, max); // Emit health check progress
-      console.log(`Attempt ${i + 1}/${max}`); // Log attempt number starting from 1
+      if (this._socket) {
+        this._socket.emit("health_check", i + 1, max);
+      }
+      console.log(`Attempt ${i + 1}/${max}`);
       await wait(1000);
       ok = await this._health_check();
       if (ok) {
-        this.socket.emit('app_ready'); // Emit app ready signal
+        if (this._socket) {
+          this._socket.emit("app_ready");
+        }
         break;
       }
     }
+    if (!ok && this._socket) {
+      this._socket.emit("session_failed");
+    }
     return ok;
   }
+
   async _health_check(fail_if_timeout = true) {
     try {
-      // Simply fetch the root URL instead of a special health endpoint
       const promFetch = fetch(this._url);
       const promTimeout = wait(3000);
       const response = await Promise.race([promFetch, promTimeout]);
-      
-      // Handle timeout case
+
       if (response === "timeout") {
         if (fail_if_timeout) {
           throw new Error("timeout");
@@ -177,8 +224,7 @@ export class Session {
         console.warn("Health check: R probably busy");
         return true;
       }
-      
-      // If we get a response, check if it's a 200 status
+
       return response.status === 200;
     } catch (error) {
       return false;
@@ -200,14 +246,14 @@ const cleanupAllSessions = () => {
 };
 
 // Add server shutdown handler
-process.on('SIGINT', () => {
-  console.log('Server shutting down...');
+process.on("SIGINT", () => {
+  console.log("Server shutting down...");
   cleanupAllSessions();
   process.exit(0);
 });
 
-process.on('SIGTERM', () => {
-  console.log('Server shutting down...');
+process.on("SIGTERM", () => {
+  console.log("Server shutting down...");
   cleanupAllSessions();
   process.exit(0);
 });

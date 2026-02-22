@@ -1,6 +1,8 @@
 # app.R
 library(shiny)
 library(ggplot2)
+Sys.sleep(2)
+
 
 addResourcePath("x", "./www")
 port <- as.integer(commandArgs(trailingOnly = TRUE)[[1]])
@@ -48,6 +50,7 @@ ui <- fluidPage(
 
 # Define server logic
 server <- function(input, output, session) {
+
   # Blocking event handler
   observeEvent(input$blockButton, {
     # Show a message that we're blocking
